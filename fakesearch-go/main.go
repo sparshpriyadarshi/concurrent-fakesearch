@@ -30,7 +30,8 @@ type Search func(query string) Result
 
 func fakeSearch(kind string) Search {
 	return func(query string) Result {
-		time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+		prng := rand.New(rand.NewSource(time.Now().UnixNano()))
+		time.Sleep(time.Duration(prng.Intn(100)) * time.Millisecond)
 		return Result(fmt.Sprintf("%s result for %q\n", kind, query))
 	}
 }
@@ -103,7 +104,6 @@ func Google4(query string) (results []Result) { //v4
 }
 
 func main() {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
 	start := time.Now()
 	//results := Google1("golang")
 	//results := Google2("golang")

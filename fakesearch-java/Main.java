@@ -38,8 +38,6 @@ class FakeSearch {
 
 public class Main {
 
-    public static Random random = new Random(System.nanoTime());// what is my point ?
-
     public static FakeSearch Web = new FakeSearch("web");
     public static FakeSearch Image = new FakeSearch("image");
     public static FakeSearch Video = new FakeSearch("video");
