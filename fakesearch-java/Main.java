@@ -43,7 +43,7 @@ public class Main {
     public static FakeSearch Web = new FakeSearch("web");
     public static FakeSearch Image = new FakeSearch("image");
     public static FakeSearch Video = new FakeSearch("video");
-    // replicas for V3
+    // replicas for V4
     public static FakeSearch Web1 = new FakeSearch("web");
     public static FakeSearch Image1 = new FakeSearch("image");
     public static FakeSearch Video1 = new FakeSearch("video");
@@ -64,7 +64,7 @@ public class Main {
     }
 
     // Run the Web, Image, and Video searches concurrently, and wait for all results
-    public static List<Result> GoogleV2p0(String query) throws InterruptedException, ExecutionException {
+    public static List<Result> GoogleV2(String query) throws InterruptedException, ExecutionException {
         List<Result> results = new ArrayList<>();
         List<FakeSearch> fakeSearches = List.of(Web, Image, Video);
 
@@ -87,7 +87,7 @@ public class Main {
     }
 
     // Don't wait for slow servers...
-    public static List<Result> GoogleV2p1(String query)
+    public static List<Result> GoogleV3(String query)
             throws InterruptedException, ExecutionException, TimeoutException {
         List<Result> results = new ArrayList<>();
         List<FakeSearch> fakeSearches = List.of(Web, Image, Video);
@@ -114,7 +114,7 @@ public class Main {
 
     // avoid discarding results from slow servers; send requests to multiple
     // replicas, and use the first response.
-    public static List<Result> GoogleV3(String query) throws InterruptedException, ExecutionException {
+    public static List<Result> GoogleV4(String query) throws InterruptedException, ExecutionException {
         List<Result> results = new ArrayList<>();
         // these are replicated fakesearch objects
         List<Set<FakeSearch>> fakeSearches = List.of(Set.of(Web1, Web2), Set.of(Image1, Image2),
@@ -161,9 +161,9 @@ public class Main {
         // do search
         List<Result> results = new ArrayList<>();
         // results = GoogleV1("Java");
-        // results = GoogleV2p0("Java");
-        results = GoogleV2p1("Java");
-        //results = GoogleV3("Java");
+        // results = GoogleV2("Java");
+        // results = GoogleV3("Java");
+        results = GoogleV4("Java");
 
         long elapsed = System.currentTimeMillis() - startTime;
         System.out.println(results);

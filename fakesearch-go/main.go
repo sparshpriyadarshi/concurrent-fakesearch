@@ -16,7 +16,7 @@ var (
 	Image = fakeSearch("image")
 	Video = fakeSearch("video")
 
-	//for 3.0
+	//for V4
 	Web1   = fakeSearch("web")
 	Image1 = fakeSearch("image")
 	Video1 = fakeSearch("video")
@@ -63,7 +63,7 @@ func Google2(query string) (results []Result) { //v2
 	return
 }
 
-func Google21(query string) (results []Result) { //v2.1
+func Google3(query string) (results []Result) { //v3
 	c := make(chan Result)
 	go func() { c <- Web(query) }()
 	go func() { c <- Image(query) }()
@@ -75,7 +75,7 @@ func Google21(query string) (results []Result) { //v2.1
 		case result := <-c:
 			results = append(results, result)
 		case <-timeout:
-			fmt.Println("timed out")
+			fmt.Println("timed-out")
 			return
 		}
 	}
@@ -83,18 +83,19 @@ func Google21(query string) (results []Result) { //v2.1
 
 }
 
-func Google(query string) (results []Result) { //v3.0
+func Google4(query string) (results []Result) { //v4
 	c := make(chan Result)
 	go func() { c <- First(query, Web1, Web2) }()
 	go func() { c <- First(query, Image1, Image2) }()
 	go func() { c <- First(query, Video1, Video2) }()
+
 	timeout := time.After(80 * time.Millisecond)
 	for i := 0; i < 3; i++ {
 		select {
 		case result := <-c:
 			results = append(results, result)
 		case <-timeout:
-			fmt.Println("timed out")
+			fmt.Println("timed-out")
 			return
 		}
 	}
@@ -102,12 +103,13 @@ func Google(query string) (results []Result) { //v3.0
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	start := time.Now()
-	result := First("golang",
-		fakeSearch("replica 1"),
-		fakeSearch("replica 2"))
+	//results := Google1("golang")
+	//results := Google2("golang")
+	//results := Google3("golang")
+	results := Google4("golang")
 	elapsed := time.Since(start)
-	fmt.Println(result)
+	fmt.Println(results)
 	fmt.Println(elapsed)
 }
