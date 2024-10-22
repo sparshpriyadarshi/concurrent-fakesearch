@@ -2,7 +2,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 class Result {
-
     String val;
 
     public Result(String v) {
@@ -11,13 +10,11 @@ class Result {
 
     @Override
     public String toString() {
-        return val.toString();
+        return val;
     }
-
 }
 
 class FakeSearch {
-
     String kind;
 
     public FakeSearch(String k) {
@@ -25,15 +22,11 @@ class FakeSearch {
     }
 
     public Result invoke(String query) throws InterruptedException {
-
         int rn = ThreadLocalRandom.current().nextInt(100);
         // System.out.println(kind + " is working for " + rn + " ms");
-
         Thread.sleep(rn);// some time consuming tasks...
-
-        return new Result(String.format("%s result for %s\n", kind, query));
+        return new Result(String.format("%s-result-for:\"%s\"", kind, query));
     }
-
 }
 
 public class Main {
@@ -51,7 +44,7 @@ public class Main {
 
     // invokes Web, Image, and Video searches serially, appending them to the
     // results
-    public static List<Result> GoogleV1(String query) throws InterruptedException {
+    public static List<Result> GooglV1(String query) throws InterruptedException {
 
         List<Result> results = new ArrayList<>();
         results.add(Web.invoke(query));
@@ -62,7 +55,7 @@ public class Main {
     }
 
     // Run the Web, Image, and Video searches concurrently, and wait for all results
-    public static List<Result> GoogleV2(String query) throws InterruptedException, ExecutionException {
+    public static List<Result> GooglV2(String query) throws InterruptedException, ExecutionException {
         List<Result> results = new ArrayList<>();
         List<FakeSearch> fakeSearches = List.of(Web, Image, Video);
 
@@ -85,7 +78,7 @@ public class Main {
     }
 
     // Don't wait for slow servers...
-    public static List<Result> GoogleV3(String query)
+    public static List<Result> GooglV3(String query)
             throws InterruptedException, ExecutionException, TimeoutException {
         List<Result> results = new ArrayList<>();
         List<FakeSearch> fakeSearches = List.of(Web, Image, Video);
@@ -100,7 +93,9 @@ public class Main {
 
         for (Future<Result> futureResult : futures) {
             if (futureResult.isCancelled()) {
-                results.add(new Result("timed-out\n"));
+                results.add(new Result("timed-out"));
+                pool.shutdown();
+                return results;
             } else {
                 results.add(futureResult.get());
             }
@@ -112,7 +107,7 @@ public class Main {
 
     // avoid discarding results from slow servers; send requests to multiple
     // replicas, and use the first response.
-    public static List<Result> GoogleV4(String query) throws InterruptedException, ExecutionException {
+    public static List<Result> GooglV4(String query) throws InterruptedException, ExecutionException {
         List<Result> results = new ArrayList<>();
         // these are replicated fakesearch objects
         List<Set<FakeSearch>> fakeSearches = List.of(Set.of(Web1, Web2), Set.of(Image1, Image2),
@@ -153,19 +148,75 @@ public class Main {
         return result;
     }
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
-        long startTime = System.currentTimeMillis();
+    public static void RunAll() throws InterruptedException, ExecutionException, TimeoutException {
+        int versions = 4;
+        int iterations = 10;
 
-        // do search
-        List<Result> results = new ArrayList<>();
-        // results = GoogleV1("Java");
-        // results = GoogleV2("Java");
-        // results = GoogleV3("Java");
-        results = GoogleV4("Java");
+        for (int v = 1; v <= versions; v++) {
+            for (int i = 0; i < iterations; i++) {
+                List<Result> results = new ArrayList<>();
+                String searchQuery = "Java is great";
+                long startTime = System.currentTimeMillis();
+                switch (v) {
+                    case 1:
+                        results = GooglV1(searchQuery);
+                        break;
+                    case 2:
+                        results = GooglV2(searchQuery);
+                        break;
+                    case 3:
+                        results = GooglV3(searchQuery);
+                        break;
+                    case 4:
+                        results = GooglV4(searchQuery);
+                        break;
+                    default:
+                        System.err.println("Error, check version for search call");
+                        break;
+                }
+                long elapsed = System.currentTimeMillis() - startTime;
+                System.out.printf("Java results, V%d, %s, %d ms%n", v, results, elapsed);
 
-        long elapsed = System.currentTimeMillis() - startTime;
-        System.out.println(results);
-        System.out.println(elapsed);
+            }
+        }
+
+        // for (int i = 0; i < iterations; i++) {
+        // long startTime = System.currentTimeMillis();
+        // List<Result> results = new ArrayList<>();
+        // results = GooglV1("Java is great");
+        // long elapsed = System.currentTimeMillis() - startTime;
+        // System.out.printf("Java results, V1, %s, %sms%n", results, elapsed);
+
+        // }
+        // for (int i = 0; i < iterations; i++) {
+        // long startTime = System.currentTimeMillis();
+        // List<Result> results = new ArrayList<>();
+        // results = GooglV2("Java is great");
+        // long elapsed = System.currentTimeMillis() - startTime;
+        // System.out.printf("Java results, V2, %s, %sms%n", results, elapsed);
+
+        // }
+        // for (int i = 0; i < iterations; i++) {
+        // long startTime = System.currentTimeMillis();
+        // List<Result> results = new ArrayList<>();
+        // results = GooglV3("Java is great");
+        // long elapsed = System.currentTimeMillis() - startTime;
+        // System.out.printf("Java results, V3, %s, %sms%n", results, elapsed);
+
+        // }
+        // for (int i = 0; i < iterations; i++) {
+        // long startTime = System.currentTimeMillis();
+        // List<Result> results = new ArrayList<>();
+        // results = GooglV4("Java is great");
+        // long elapsed = System.currentTimeMillis() - startTime;
+        // System.out.printf("Java results, V4, %s, %sms\n", results, elapsed);
+
+        // }
 
     }
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
+        RunAll();
+    }
+
 }

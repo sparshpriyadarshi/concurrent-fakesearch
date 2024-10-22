@@ -8,6 +8,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -32,7 +33,7 @@ func fakeSearch(kind string) Search {
 	return func(query string) Result {
 		prng := rand.New(rand.NewSource(time.Now().UnixNano()))
 		time.Sleep(time.Duration(prng.Intn(100)) * time.Millisecond)
-		return Result(fmt.Sprintf("%s result for %q\n", kind, query))
+		return Result(fmt.Sprintf("%s-result-for:%q", kind, query))
 	}
 }
 func First(query string, replicas ...Search) Result {
@@ -44,14 +45,14 @@ func First(query string, replicas ...Search) Result {
 	return <-c
 }
 
-func Google1(query string) (results []Result) { //v1
+func Googl1(query string) (results []Result) { //v1
 	results = append(results, Web(query))
 	results = append(results, Image(query))
 	results = append(results, Video(query))
 	return
 }
 
-func Google2(query string) (results []Result) { //v2
+func Googl2(query string) (results []Result) { //v2
 	c := make(chan Result)
 	go func() { c <- Web(query) }()
 	go func() { c <- Image(query) }()
@@ -64,7 +65,7 @@ func Google2(query string) (results []Result) { //v2
 	return
 }
 
-func Google3(query string) (results []Result) { //v3
+func Googl3(query string) (results []Result) { //v3
 	c := make(chan Result)
 	go func() { c <- Web(query) }()
 	go func() { c <- Image(query) }()
@@ -76,15 +77,15 @@ func Google3(query string) (results []Result) { //v3
 		case result := <-c:
 			results = append(results, result)
 		case <-timeout:
-			fmt.Println("timed-out")
+			//fmt.Println("timed-out")
+			results = append(results, "timed-out")
 			return
 		}
 	}
 	return
-
 }
 
-func Google4(query string) (results []Result) { //v4
+func Googl4(query string) (results []Result) { //v4
 	c := make(chan Result)
 	go func() { c <- First(query, Web1, Web2) }()
 	go func() { c <- First(query, Image1, Image2) }()
@@ -96,20 +97,69 @@ func Google4(query string) (results []Result) { //v4
 		case result := <-c:
 			results = append(results, result)
 		case <-timeout:
-			fmt.Println("timed-out")
+			//fmt.Println("timed-out")
+			results = append(results, "timed-out")
 			return
 		}
 	}
 	return
 }
+func RunAll() {
+	versions := 4
+	iterations := 10
+	for v := 1; v <= versions; v++ {
+		for i := 0; i < iterations; i++ {
+			var results []Result
+			searchquery := "Go is awesome"
+			start := time.Now()
+			switch v {
+			case 1:
+				results = Googl1(searchquery)
+			case 2:
+				results = Googl2(searchquery)
+			case 3:
+				results = Googl3(searchquery)
+			case 4:
+				results = Googl4(searchquery)
+			default:
+				fmt.Fprintln(os.Stderr, "Error, check version for search call")
+			}
+			elapsed := time.Since(start)
+			fmt.Printf("Go results, V%v, %s, %v ms\n", v, results, elapsed.Milliseconds()) //elapsed is microseconds sometimes TODO FIXME:
 
+		}
+
+	}
+	// for i := 0; i < iterations; i++ {
+	// 	start := time.Now()
+	// 	results := Googl1("Go is awesome")
+	// 	elapsed := time.Since(start)
+	// 	fmt.Printf("Go results, V1, %s, %s\n", results, elapsed)
+
+	// }
+	// for i := 0; i < iterations; i++ {
+	// 	start := time.Now()
+	// 	results := Googl2("Go is awesome")
+	// 	elapsed := time.Since(start)
+	// 	fmt.Printf("Go results, V2, %s, %s\n", results, elapsed)
+
+	// }
+	// for i := 0; i < iterations; i++ {
+	// 	start := time.Now()
+	// 	results := Googl3("Go is awesome")
+	// 	elapsed := time.Since(start)
+	// 	fmt.Printf("Go results, V3, %s, %s\n", results, elapsed)
+
+	// }
+	// for i := 0; i < iterations; i++ {
+	// 	start := time.Now()
+	// 	results := Googl4("Go is awesome")
+	// 	elapsed := time.Since(start)
+	// 	fmt.Printf("Go results, V4, %s, %s\n", results, elapsed)
+
+	// }
+
+}
 func main() {
-	start := time.Now()
-	//results := Google1("golang")
-	//results := Google2("golang")
-	//results := Google3("golang")
-	results := Google4("golang")
-	elapsed := time.Since(start)
-	fmt.Println(results)
-	fmt.Println(elapsed)
+	RunAll()
 }
