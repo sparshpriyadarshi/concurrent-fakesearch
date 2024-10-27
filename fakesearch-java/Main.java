@@ -175,7 +175,7 @@ public class Main {
                         break;
                 }
                 long elapsed = System.currentTimeMillis() - startTime;
-                System.out.printf("Java results, V%d, %s, %d ms%n", v, results, elapsed);
+                System.out.printf("Java results, V%d, %s, %d ms%n", v, results.toString().replace(",", ""), elapsed); 
 
             }
         }
