@@ -2,6 +2,7 @@
 This example was presented by Rob Pike for the Go concurrency patterns talk at:
 All talks: https://go.dev/talks/2012/
 This talk: https://go.dev/talks/2012/concurrency.slide#1
+Video    : https://www.youtube.com/watch?v=f6kdp27TYZs
 */
 package main
 
@@ -106,7 +107,7 @@ func Googl4(query string) (results []Result) { //v4
 }
 func RunAll() {
 	versions := 4
-	iterations := 10
+	iterations := 100
 	for v := 1; v <= versions; v++ {
 		for i := 0; i < iterations; i++ {
 			var results []Result

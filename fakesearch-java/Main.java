@@ -150,7 +150,7 @@ public class Main {
 
     public static void RunAll() throws InterruptedException, ExecutionException, TimeoutException {
         int versions = 4;
-        int iterations = 10;
+        int iterations = 100;
 
         for (int v = 1; v <= versions; v++) {
             for (int i = 0; i < iterations; i++) {
