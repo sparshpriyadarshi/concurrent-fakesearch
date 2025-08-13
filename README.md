@@ -2,7 +2,7 @@
 
 > A doodly[^1] experiment following a surge of inspiration from [Rob Pike's iconic 2012 talk](https://go.dev/talks/2012/concurrency.slide#1) on Golang's concurrency features.    
 
-Go has very elegant concurrency primitives and I wondered what it would be like to express the same example given in the talk in another language lacking coroutines and channels. In the spirit of being contemporarily fair, chose not to use newer (JEP [425](https://openjdk.org/jeps/425), JEP [428](https://openjdk.org/jeps/428)) features.    
+Go has very elegant concurrency primitives and I wondered what it would be like to express the same example in another language lacking coroutines and channels. In the spirit of being contemporarily fair, chose not to use newer (JEP [425](https://openjdk.org/jeps/425), JEP [428](https://openjdk.org/jeps/428)) features.    
 
 ## Overview
 
