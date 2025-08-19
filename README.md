@@ -14,7 +14,7 @@ V3: invoke web, image and video searches concurrently, and time-out for the slow
 V4: invoke web, image and video searches concurrently to each of their replicas, use first response from each type.  
 
 
-![Results plot](output.png)
+![Results plot](https://github.com/sparshpriyadarshi/concurrent-fakesearch/blob/main/output.png)
 
 ---
 
